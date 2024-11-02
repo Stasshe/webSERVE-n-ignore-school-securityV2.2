@@ -1,6 +1,6 @@
 # web-V3.14
-using in iPad
-used in replit.com or PythonEditor(old generation)
+using on iPad,
+assumed environment: replit.com or PythonEditor(old generation)
 
 no able:
 img.game8
