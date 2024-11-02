@@ -2,7 +2,7 @@
 using in iPad
 used in replit.com or PythonEditor(old generation)
 
-no able
+no able:
 img.game8
 クッキーとかで邪魔してくるやつ
 ebook
