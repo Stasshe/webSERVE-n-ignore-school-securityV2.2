@@ -8,36 +8,27 @@ V3.0 V1.0とV2.2を統合、同時閲覧が高速にできるように、portを
     admin機能追加
 V3.1 画像大量ダウンロード防止、デフォルトも変えられる
 V3.14 デフォルト自動変更機能搭載
+V3.2 検索機能追加
 '''
 
-
-
-
-
-'''
-ISGC試す
-https://www.soundhouse.co.jp/contents/staff-blog/index?post=783&srsltid=AfmBOoquW1FnsUMMTFu2LvMM0A018z3Gvy8m1Ob5nMWDAYVmr-KUjcnN
-
-
-
-'''
 
 
 
 #Config ユーザーが変更できる値たち
 
-#1.Default_img_download=True
+#1.Default_img_download=True usualだけの話。 --default=True
 Default_img_download=True
 #上のデフォルトを自動変更するサイト
 Default_img_dl_ignore=['Google']
-#Exceptions
-ex=['qitta','quora']
+#Exceptions --default= ex=['qiita.com','quora.com'] whether include url
+ex=['qiita.com','quora.com']
+#auto open webbrowser --default=True
+auto_open=True
+#search open webbrowser --default=False
+se_auto_open=True
 
 
-
-
-
-
+import time
 import os
 import shutil
 
@@ -71,11 +62,24 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1',
     #'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36',
     #'Referer': 'https://example.com/',
-    #'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
     'Accept-Language': 'ja,en-US;q=0.7,en;q=0.3'
 }
 
-#----------------------------------mainly use
+#----------------------------------mainly use usual
+#----------------------------------mainly use usual
+#----------------------------------mainly use usual
+#----------------------------------mainly use usual
+#----------------------------------mainly use usual
+#----------------------------------mainly use usual
+#----------------------------------mainly use usual
+#----------------------------------mainly use usual
+#----------------------------------mainly use usual
+#----------------------------------mainly use usual
+#----------------------------------mainly use usual
+#----------------------------------mainly use usual
+#----------------------------------mainly use usual
+#----------------------------------mainly use usual
 def save_webpage(url, save_folder):
     global Default_img_download
     # フォルダの作成
@@ -103,20 +107,22 @@ def save_webpage(url, save_folder):
     if soup.head is None:
         soup.head = soup.new_tag('head')
         soup.html.insert(0, soup.head)
-
-    # MathJaxスクリプトを追加
-    mathjax_script = soup.new_tag('script', src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js")
-    mathjax_config = soup.new_tag('script')
-    mathjax_config.string = r"""
-    window.MathJax = {
-      tex: {
-        inlineMath: [['\(', '\)']],
-        displayMath: [['$$', '$$'], ['\[', '\]']]
-      }
-    };
-    """
-    soup.head.append(mathjax_config)
-    soup.head.append(mathjax_script)
+    
+    if 'math' in title_name or '数学' in title_name:
+        print('数学系')
+        # MathJaxスクリプトを追加
+        mathjax_script = soup.new_tag('script', src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js")
+        mathjax_config = soup.new_tag('script')
+        mathjax_config.string = r"""
+        window.MathJax = {
+        tex: {
+            inlineMath: [['\(', '\)']],
+            displayMath: [['$$', '$$'], ['\[', '\]']]
+        }
+        };
+        """
+        soup.head.append(mathjax_config)
+        soup.head.append(mathjax_script)
 
     # リソースの保存フォルダを作成
     resources_folder = os.path.join(save_folder, 'resources')
@@ -233,12 +239,13 @@ def save_webpage(url, save_folder):
     save_srcset_resources(resources_folder)
     save_resource('link', 'href', resources_folder)
     save_resource('script', 'src', resources_folder)
-
+    
+    
     # 不要なスクリプトの削除
     for script in soup.find_all('script', src=True):
         if "v3-article-bundle-" in script['src']:
             script.decompose()
-
+    
     # HTMLを保存
     html_file_path = os.path.join(save_folder, 'index.html')
     with open(html_file_path, 'w', encoding='utf-8') as f:
@@ -247,6 +254,22 @@ def save_webpage(url, save_folder):
     print(f"Web page saved at {html_file_path}")
     return save_folder
 
+#----------------------------------exception
+#----------------------------------exception
+#----------------------------------exception
+#----------------------------------exception
+#----------------------------------exception
+#----------------------------------exception
+#----------------------------------exception
+#----------------------------------exception
+#----------------------------------exception
+#----------------------------------exception
+#----------------------------------exception
+#----------------------------------exception
+#----------------------------------exception
+#----------------------------------exception
+#----------------------------------exception
+#----------------------------------exception
 #----------------------------------exception
 
 # グローバル変数の定義
@@ -280,7 +303,7 @@ def save_content(url):
         html_file_path = os.path.join(folder_path, 'index.html')
         with open(html_file_path, 'w', encoding='utf-8') as file:
             file.write(response.text)
-        print(f'HTML saved as {html_file_path}')
+        #print(f'HTML saved as {html_file_path}')
 
         # CSSファイルのダウンロードと保存
         css_links = [link.get('href') for link in soup.find_all('link', rel='stylesheet')]
@@ -295,7 +318,7 @@ def save_content(url):
                     css_file_path = os.path.join(folder_path, css_file_name)
                     with open(css_file_path, 'w', encoding='utf-8') as file:
                         file.write(css_response.text)
-                    print(f'CSS saved as {css_file_path}')
+                    #print(f'CSS saved as {css_file_path}')
             except requests.exceptions.RequestException as e:
                 print(f"Failed to download CSS {css_url}: {e}")
             finally:
@@ -316,7 +339,7 @@ def save_content(url):
                     js_file_path = os.path.join(folder_path, js_file_name)
                     with open(js_file_path, 'w', encoding='utf-8') as file:
                         file.write(js_response.text)
-                    print(f'JS saved as {js_file_path}')
+                    #print(f'JS saved as {js_file_path}')
             except requests.exceptions.RequestException as e:
                 print(f"Failed to download JS {js_url}: {e}")
             finally:
@@ -352,18 +375,36 @@ def save_content(url):
     except Exception as e:
         print(f"An error occurred: {e}")
 
+#----------------------------------shell-----------------------------
+#----------------------------------shell-----------------------------
+#----------------------------------shell-----------------------------
+#----------------------------------shell-----------------------------
+#----------------------------------shell-----------------------------
+#----------------------------------shell-----------------------------
+#----------------------------------shell-----------------------------
+#----------------------------------shell-----------------------------
+#----------------------------------shell-----------------------------
+#----------------------------------shell-----------------------------
+#----------------------------------shell-----------------------------
+#----------------------------------shell-----------------------------
+#----------------------------------shell-----------------------------
+#----------------------------------shell-----------------------------
+#----------------------------------shell-----------------------------
+#----------------------------------shell-----------------------------
+#----------------------------------shell-----------------------------
 
 print('URLを入力し、Enterを押してください。')
-url=input('url=')
+url=input('command or url=')
 if url=="":
     print('中止')
     exit()
 print('読み込み中、そのまま待ってください。')
 
-
-if url=='admin':
+def admin():
+    global url
     admin_ans=input('which script do you run?[usual,exception]=')
-    url=input('url=')
+    if mode!='search':
+        url=input('url=')
     if admin_ans=="usual":
         print('一般処理です。')
         save_folder = "./saved_webpage"
@@ -374,6 +415,62 @@ if url=='admin':
     else:
         print('not defined admin_Command')
         exit()
+    
+mode=''
+if url=='admin':
+    admin()
+elif url=='search':
+    mode='search'
+    print("Which engine? / 1. Google / 2. Bing / 3. DuckDuckGo")
+    engine = input("Answer by the number: ")
+    
+    print("Choose search type / 1. Normal search / 2. Image search / 3. Video search")
+    search_type = input("Answer by the number: ")
+    search_query = input("Enter your search query: ")
+    
+    url = ""
+    if se_auto_open ==False:
+        auto_open=False
+        print('検索システムでは、プライベートタブの選択ができるように、自動で開かないようになっています。')
+    
+    if engine == "1":  # Google
+        if search_type == "1":
+            url = f"https://www.google.com/search?q={search_query}"
+        elif search_type == "2":
+            url = f"https://www.google.com/search?tbm=isch&q={search_query}"
+        elif search_type == "3":
+            url = f"https://www.google.com/search?tbm=vid&q={search_query}"
+    
+    elif engine == "2":  # Bing
+        if search_type == "1":
+            url = f"https://www.bing.com/search?q={search_query}"
+        elif search_type == "2":
+            url = f"https://www.bing.com/images/search?q={search_query}"
+        elif search_type == "3":
+            url = f"https://www.bing.com/videos/search?q={search_query}"
+    
+    elif engine == "3":  # DuckDuckGo
+        if search_type == "1":
+            url = f"https://duckduckgo.com/?q={search_query}"
+        elif search_type == "2":
+            url = f"https://duckduckgo.com/?q={search_query}&iax=images&ia=images"
+        elif search_type == "3":
+            url = f"https://duckduckgo.com/?q={search_query}&iax=videos&ia=videos"
+    
+    ad_s=input('Press Enter key or admin:')
+    # URLの出力
+    if url:
+        if ad_s=='admin':
+            admin()
+        else:
+            print('一般処理です。')
+            save_folder="./saved_webpage"
+            save_webpage(url,save_folder)
+    else:
+        print('Canceled')
+        exit()
+    
+    
 else:
     if any(substring in url for substring in ex):
         print('例外処理を起動しました。')
@@ -386,12 +483,12 @@ else:
 print('完了')
 
 
-#----------------------------------
 import http.server
 import socketserver
 import webbrowser
+import os
 
-def start_server(directory, start_port=8010, end_port=8029):
+def start_server(directory, start_port=8010, end_port=8029, auto_op_web=True):
     os.chdir(directory)  # 指定されたディレクトリに移動
 
     handler = http.server.SimpleHTTPRequestHandler
@@ -399,13 +496,22 @@ def start_server(directory, start_port=8010, end_port=8029):
     for port in range(start_port, end_port + 1):
         try:
             with socketserver.TCPServer(("", port), handler) as httpd:
+                url = f"http://localhost:{port}"
                 print(f"Serving at port {port}")
-                webbrowser.open(f"http://localhost:{port}")  # ブラウザで自動的に開く
+
+                
+                # auto_op_webがTrueのときのみ自動でブラウザを開く
+                if auto_op_web:
+                    time.sleep(0.5)
+                    webbrowser.open(url)
+                else:
+                    print(f'自分で直接ブラウザに入力してください。{url}')
                 httpd.serve_forever()
+                
                 break  # サーバーが正常に起動したらループを抜ける
         except OSError as e:
             if 'Address already in use' in str(e):
-                print(f"Port {port} が既に使われていました。次のport{port+1}へ自動移行します。...")
+                print(f"Port {port} が既に使われていました。次のport {port+1} へ自動移行します。...")
             else:
                 print(f"An error occurred: {e}")
                 break
@@ -416,4 +522,9 @@ def start_server(directory, start_port=8010, end_port=8029):
 
 # フォルダ名とポート番号を設定
 directory_to_serve = 'saved_webpage'
-start_server(directory_to_serve)
+
+# 自動でサイトを開くかどうかを選択
+#auto_open = input("Auto-open web? (y/n): ").strip().lower() == 'y'
+
+# サーバーを開始
+start_server(directory_to_serve, auto_op_web=auto_open)
